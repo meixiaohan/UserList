@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bulma/0.7.2/css/bulma.css">
+    <link rel="stylesheet" href="/lib/simplePagination.css">
+    <link rel="stylesheet" href="/lib/magnific-popup.css">
+    <script src="https://cdn.bootcss.com/jquery/1.12.3/jquery.js "></script>
+    <script src="/lib/jquery.simplePagination.js"></script>
+    <script src="/lib/jquery.magnific-popup.js"></script>
+
+    <style>
+        table{
+            margin-top:10px; 
+        }
+
+        #add_dialog,#edit_dialog{
+            position: relative;
+            background: #FFF;
+            padding: 20px;
+            width: auto;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        
+        #add_dialog input{
+            width: 100%;
+        }
+
+        .page{
+            width: 100%;
+            margin: 0 auto;
+            margin-left: 540px;
+        }
+
+    </style>
+
+    <title>异步列表页面</title>
+</head>
+
+<body>
+    <h1>这是异步列表的主页面</h1>
+
+    <a href="#add_dialog" class="button is-medium is-primary" style="margin-left: 700px" id='btnAdd'>添加用户</a>
+
+
+    <table class="table is-bordered is-hoverable is-striped is-fullwidth">
+        <thead>
+            <tr>
+                <th class="has-text-centered">id</th>
+                <th class="has-text-centered">姓名</th>
+                <th class="has-text-centered">邮箱</th>
+                <th class="has-text-centered">电话</th>
+                <th class="has-text-centered">地址</th>
+                <th class="has-text-centered">邮编</th>
+                <th class="has-text-centered">生日</th>
+                <th class="has-text-centered">操作</th>
+            </tr>
+        </thead>
+        <tbody id='tbody'>
+
+        </tbody>
+    </table>
+
+    <!-- add_dialog -->
+    <div id="add_dialog" class='pop-dialog mfp-hide'>
+        <h1>添加用户</h1>
+        <hr>
+        <form id='Form_Add'>
+            <table class="table is-bordered is-hoverable is-striped is-fullwidth">
+                <tr>
+                    <td class="has-text-centered">姓名</td>
+                    <td><input type="text" name='name'></td>
+                </tr>
+                <tr>
+                    <td class="has-text-centered">邮箱</td>
+                    <td><input type="email" name="email"></td>
+                </tr>
+                <tr>
+                    <td class="has-text-centered">电话</td>
+                    <td><input type="number" name="phone"></td>
+                </tr>
+                <tr>
+                    <td class="has-text-centered">地址</td>
+                    <td><input type="text" name='address'></td>
+                </tr>
+                <tr>
+                    <td class="has-text-centered">邮编</td>
+                    <td><input type="text" name='zip'></td>
+                </tr>
+                <tr>
+                    <td class="has-text-centered">生日</td>
+                    <td><input type="date" name='birthday'></td>
+                </tr>
+            </table>
+        </form>
+        <hr>
+        <input class="button is-large" style="width:100px;cursor: pointer" type="button" value="提交" id="SubmitBtn">
+        <input class="button is-large" style="width:100px;cursor: pointer;float: right;" type="button" value="取消" id="closeBtn">
+    </div>
+
+
+    <!-- edit_dialog -->
+    <div id="edit_dialog" class='pop-dialog mfp-hide'>
+        <h1>更新用户信息</h1>
+        <hr>
+        <form id='Form_Edit'>
+            <table class="table is-bordered is-hoverable is-striped is-fullwidth">
+                <td><input type="hidden" name='id' id="editid"></td>
+                <tr>
+                    <td class="has-text-centered">姓名</td>
+                    <td><input type="text" id='editname' name='name'></td>
+                </tr>
+                <tr>
+                    <td class="has-text-centered">邮箱</td>
+                    <td><input type="email" id="editemail" name="email"></td>
+                </tr>
+                <tr>
+                    <td class="has-text-centered">电话</td>
+                    <td><input type="number" id="editphone" name="phone"></td>
+                </tr>
+                <tr>
+                    <td class="has-text-centered">地址</td>
+                    <td><input type="text" id="editaddress" name='address'></td>
+                </tr>
+                <tr>
+                    <td class="has-text-centered">邮编</td>
+                    <td><input type="text" id='editzip' name='zip'></td>
+                </tr>
+                <tr>
+                    <td class="has-text-centered">生日</td>
+                    <td><input type="date" id='editbirthday' name='birthday'></td>
+                </tr>
+            </table>
+        </form>
+        <hr>
+        <input class="button is-large" style="width:100px;cursor: pointer" type="button" value="修改" id="updateBtn">
+        <input class="button is-large" style="width:100px;cursor: pointer;float: right;" type="button" value="取消" id="closeEditBtn">
+    </div>
+
+    <div class="page">
+
+    </div>
+
+
+
+
+
+    <script>
+        $(function () {
+            //初始化table数据
+            InitTable();
+
+            //通过事件委托绑定del事件
+            BindDelBtn();
+
+            //初始化添加用户的弹出层
+            InitAddDIalog();
+
+            //初始化修改用户信息的弹出层
+            InitEditDialog();
+
+
+        });
+
+
+        //初始化表格数据
+        function InitTable() {
+            $.getJSON('/api/userlist', 'page=1&size=10', function (data) {
+                console.dir(data)
+               updateList(data);
+                $('.edit').magnificPopup({
+                    type: "inline",
+                    closeBtnInside: "true",
+                    closeOnBgclick: 'false'
+                });
+
+                $('.page').pagination({
+                    currentPage: data.page,
+                    items: data.count,
+                    itemsOnPage: 10,
+                    cssStyle: 'light-theme',
+                    prevText: '上一页',
+                    nextText: '下一页',
+                    onPageClick: function (pageNumber, event) {
+                       
+                        $.ajax({
+                            url: '/api/userlist',
+                            type: 'GET',
+                            data: 'page=' + pageNumber + "&size=10",
+                            success: function (redata) {
+                               updateList(redata);
+                               $('.edit').magnificPopup({
+                                 type: "inline",
+                                 closeBtnInside: "true",
+                                 closeOnBgclick: 'false'
+                                 });
+                            }
+
+                        })
+                        
+                    }
+                });
+
+
+            })
+        }
+
+
+        //  绑定delbtn的点击事件
+        function BindDelBtn() {
+            $("#tbody").on('click', '.del', function (e) {
+                const id = $(this).attr('uid');
+                if (!confirm("确定要删除" + id + "吗?")) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '/api/deluser/' + id,
+                    type: 'POST',
+                    data: '',
+                    success: function (data) {
+                        if (data.code == 1) {
+                            alert('删除成功！');
+                            InitTable();
+                        } else {
+                            alert("删除失败！")
+                        }
+                    }
+                })
+            })
+        }
+
+
+        // 初始化Adddialog数据
+        function InitAddDIalog() {
+            $('#btnAdd').magnificPopup({
+                type: "inline",
+                closeBtnInside: "true",
+                closeOnBgclick: 'false'
+            });
+
+            //初始化Closebutton
+            $('#closeBtn').on('click', function (e) {
+                $('#btnAdd').magnificPopup('close');
+            });
+
+            //初始化Submitbtn
+            $('#SubmitBtn').on('click', function (e) {
+                console.log("data：" + $('#Form_Add').serialize());
+                $.ajax({
+                    url: '/api/addUser',
+                    data: $('#Form_Add').serialize(),
+                    type: 'POST',
+                    success: function (data) {
+                        if (data.code == 1) {
+                            alert("添加成功")
+                            //关闭窗口
+                            $('#btnAdd').magnificPopup('close');
+                            //初始化表格数据
+                            InitTable();
+                        }
+                    }
+                })
+            })
+
+
+
+        }
+
+
+        //初始化EditDialog数据
+        function InitEditDialog() {
+            $('#tbody').on('click', '.edit', function (e) {
+                $.ajax({
+                    url: '/api/edit',
+                    type: 'POST',
+                    data: 'id=' + $(this).attr('uid'),
+                    success: function (data) {
+                        $('#editid').val(data.id);
+                        $('#editname').val(data.name);
+                        $('#editphone').val(data.phone);
+                        $("#editzip").val(data.zip);
+                        $("#editaddress").val(data.address);
+                        $('#editemail').val(data.email);
+                        $("#editbirthday").val(data.birthday);
+                    }
+                });
+
+            });
+
+            $("#closeEditBtn").on('click', function (e) {
+
+                //关闭窗口 两种方法
+                // $(".edit").magnificPopup('close');
+                //
+                $.magnificPopup.close();
+            });
+
+            $("#updateBtn").on('click', function (e) {
+                console.log('From_data:' + $("#From_Edit").serialize());
+                $.ajax({
+                    url: '/api/update',
+                    type: 'POST',
+                    data: $("#Form_Edit").serialize(),
+                    success: function (data) {
+                        if (data.code == 1) {
+                            alert("修改成功");
+                            $.magnificPopup.close();
+                            InitTable();
+                        } else {
+                            alert("修改失败")
+                        }
+                    }
+                })
+            })
+
+           
+        }
+    
+         //updatelist
+         function updateList(data){
+                var htmlStr = '';
+                for (var i = 0; i < data.users.length; i++) {
+                    htmlStr += '<r>';
+                    htmlStr += '<td class="has-text-centered">' + data.users[i].id + '</td>';
+                    htmlStr += '<td class="has-text-centered">' + data.users[i].name + '</td>';
+                    htmlStr += '<td class="has-text-centered">' + data.users[i].email + '</td>';
+                    htmlStr += '<td class="has-text-centered">' + data.users[i].phone + '</td>';
+                    htmlStr += '<td class="has-text-centered">' + data.users[i].address + '</td>';
+                    htmlStr += '<td class="has-text-centered">' + data.users[i].zip + '</td>';
+                    htmlStr += '<td class="has-text-centered">' + data.users[i].birthday + '</td>';
+                    htmlStr += '<td class="has-text-centered"><a uid="' + data.users[i].id +
+                        '" class="del" href="#">删除</a>';
+                    htmlStr += '&nbsp';
+                    htmlStr += '<a uid="' + data.users[i].id + '" class="edit" href="#edit_dialog">修改</a></td>';
+                    htmlStr += '</tr>';
+                }
+                $('#tbody').html(htmlStr);
+            }
+    
+    </script>
+
+
+
+
+
+
+
+
+</body>
+
+</html>

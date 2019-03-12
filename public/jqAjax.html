@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.bootcss.com/jquery/1.12.3/jquery.js "></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <input type="button" value="JQAjax_Get" id="btn_Get">
+    <input type="button" value="JQAjax_Post" id="btn_Post">
+    <input type="button" value="JQAjax_Ajax" id="btn_Ajax">
+    <script>
+        $(function () {
+            $('#btn_Get').on('click', function () {
+                //Jquery Ajax请求  post() get()  getJSON()  load() getScript() 
+                $.get('./user.json', 'name=mxh&id=100', function (data, status, xhr) {
+                    console.log(data.id);
+                    console.log(status);
+                }, 'json');
+
+                //简单写法
+                $.get('./user.json', function (data) {
+                    console.log(data);
+                });
+
+            });
+
+            $('#btn_Post').on('click',function(){
+                $.post('/api/user','name=mxh&id=123123',function(data){
+                    console.log(data);
+                });
+            });
+
+
+            $('#btn_Ajax').on('click',function(){
+                $.ajax({
+                    url : '/api/user',
+                    type: 'POST',
+                    data : 'user=ajax&id=11111',
+                    success: function(data){
+                        console.log(data);
+                    }
+                })
+            })
+        })
+    </script>
+</body>
+
+</html>

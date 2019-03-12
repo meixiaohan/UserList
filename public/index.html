@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>index</title>
+</head>
+<body>
+    这是当前项目的主页面
+    <br>
+    <input type="button" value="异步请求(Get)"  id='btn_get'>
+    <input type="button" value="异步请求(Post)"  id='btn_post'>
+    <script>
+        window.onload = function(){
+            var btn_get = document.getElementById("btn_get");
+            var btn_post = document.getElementById("btn_post");
+          
+          
+            //get方法
+            btn_get.onclick = function(e){    
+                //第一步：创建xhr对象
+                var xhr = new XMLHttpRequest();
+                //第二步：打开与后台的连接
+                xhr.open('GET','/user.json',true) //GET方法  true表示使用异步请求
+                //第三步：发送请求
+                xhr.send();
+                
+                xhr.onreadystatechange = function(){
+                    if(xhr.status==200&&xhr.readyState==4){
+                        console.log(xhr.responseText);
+                    }
+                }
+
+            }
+            
+            //post方法
+            btn_post.onclick = function(){
+                //第一步：创建xhr对象
+                var xhr = new XMLHttpRequest();
+                //第二步：打开与后台服务器的连接
+                xhr.open('POST','/api/user',true);
+                //第三步：设置请求头
+                xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+                //第四步:发送数据
+                xhr.send('id=100&name=mxh');
+
+                xhr.onreadystatechange =function(){
+                    if(xhr.readyState == 4&& xhr.status==200){
+                        console.log(xhr.responseText);
+                    }
+                }
+            }
+
+
+
+        }
+    </script>
+</body>
+</html>

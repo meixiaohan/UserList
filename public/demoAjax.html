@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./lib/ajaxHelper.js"></script>
+    <title>Ajax</title>
+</head>
+<body>
+    <input type="button" value="Ajax_Get" id="btn_Get">
+    <input type="button" value="Ajax_Post" id="btn_Post">
+    <script>
+        window.onload =function(){
+            var btn_Get = document.getElementById('btn_Get');
+            var btn_Post = document.getElementById('btn_Post');
+            btn_Get.onclick =function(){
+                AjaxGet('/user.json',function(data){
+                    console.log(data);
+                });
+            }
+            
+
+            btn_Post.onclick =function(){
+                AjaxPost('/api/user','id=10000&name=弯大神',function(data){
+                    console.log(data);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
